@@ -29,21 +29,21 @@ var (
 
 	// KeyRuntimeID is an ABCI event attribute key for specifying event
 	// runtime (value is Base64-encoded runtime ID).
-	KeyRuntimeID = []byte("runtime-id")
+	KeyRuntimeID = []byte("runtime_id")
 	// KeyExecutorCommitted is an ABCI event attribute key for executor
 	// commit events (value is CBOR-serialized ValueExecutorCommitted).
-	KeyExecutorCommitted = []byte("executor-commit")
+	KeyExecutorCommitted = []byte("executor_commit")
 	// KeyMergeCommitted is an ABCI event attribute key for merge
 	// commit events (value is CBOR-serialized ValueMergeCommitted).
-	KeyMergeCommitted = []byte("merge-commit")
+	KeyMergeCommitted = []byte("merge_commit")
 	// KeyMergeDiscrepancyDetected is an ABCI event attribute key for
 	// merge discrepancy detected events (value is a CBOR serialized
 	// ValueMergeDiscrepancyDetected).
-	KeyMergeDiscrepancyDetected = []byte("merge-discrepancy")
+	KeyMergeDiscrepancyDetected = []byte("merge_discrepancy")
 	// KeyExecutionDiscrepancyDetected is an ABCI event attribute key for
 	// merge discrepancy detected events (value is a CBOR serialized
 	// ValueExecutionDiscrepancyDetected).
-	KeyExecutionDiscrepancyDetected = []byte("execution-discrepancy")
+	KeyExecutionDiscrepancyDetected = []byte("execution_discrepancy")
 	// KeyFinalized is an ABCI event attribute key for finalized blocks
 	// (value is a CBOR serialized ValueFinalized).
 	KeyFinalized = []byte("finalized")
@@ -52,7 +52,7 @@ var (
 // QueryForRuntime returns a query for filtering transactions processed by the roothash application
 // limited to a specific runtime.
 func QueryForRuntime(runtimeID common.Namespace) tmpubsub.Query {
-	return tmquery.MustParse(fmt.Sprintf("%s AND %s.%s='%s'", QueryApp, EventType, KeyRuntimeID, ValueRuntimeID(runtimeID)))
+	return tmquery.MustCompile(fmt.Sprintf("%s AND %s.%s='%s'", QueryApp, EventType, KeyRuntimeID, ValueRuntimeID(runtimeID)))
 }
 
 // ValueRuntimeID returns the value that should be stored under KeyRuntimeID.
