@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/oasisprotocol/oasis-core/go/common"
+	"github.com/oasisprotocol/oasis-core/go/common/cbor"
 	"github.com/oasisprotocol/oasis-core/go/common/crypto/hash"
 	"github.com/oasisprotocol/oasis-core/go/common/errors"
 	"github.com/oasisprotocol/oasis-core/go/common/logging"
@@ -371,6 +372,9 @@ type MessageEvent struct {
 	Module string `json:"module,omitempty"`
 	Code   uint32 `json:"code,omitempty"`
 	Index  uint32 `json:"index,omitempty"`
+
+	// Result contains message execution results for successfully executed messages.
+	Result cbor.RawMessage `json:"result,omitempty"`
 }
 
 // IsSuccess returns true if the event indicates that the message was successfully processed.

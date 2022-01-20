@@ -118,6 +118,10 @@ pub struct MessageEvent {
     #[cbor(optional)]
     #[cbor(default)]
     pub index: u32,
+
+    #[cbor(optional)]
+    #[cbor(default)]
+    pub result: Option<Vec<u8>>,
 }
 
 impl MessageEvent {

@@ -1,6 +1,7 @@
 package roothash
 
 import (
+	"github.com/oasisprotocol/oasis-core/go/common/cbor"
 	"github.com/oasisprotocol/oasis-core/go/common/errors"
 	tmapi "github.com/oasisprotocol/oasis-core/go/consensus/tendermint/api"
 	roothashApi "github.com/oasisprotocol/oasis-core/go/consensus/tendermint/apps/roothash/api"
@@ -37,12 +38,13 @@ func (app *rootHashApplication) processRuntimeMessages(
 			"body", msg,
 		)
 
+		var results []interface{}
 		var err error
 		switch {
 		case msg.Staking != nil:
-			err = app.md.Publish(ctx, roothashApi.RuntimeMessageStaking, msg.Staking)
+			results, err = app.md.Publish(ctx, roothashApi.RuntimeMessageStaking, msg.Staking)
 		case msg.Registry != nil:
-			err = app.md.Publish(ctx, roothashApi.RuntimeMessageRegistry, msg.Registry)
+			results, err = app.md.Publish(ctx, roothashApi.RuntimeMessageRegistry, msg.Registry)
 		default:
 			// Unsupported message.
 			err = roothash.ErrInvalidArgument
@@ -60,11 +62,22 @@ func (app *rootHashApplication) processRuntimeMessages(
 			err = roothash.ErrInvalidArgument
 		}
 
+		// Take the first non nill result.
+		var result cbor.RawMessage
+		for _, res := range results {
+			if res == nil {
+				continue
+			}
+			result = cbor.Marshal(res)
+			break
+		}
+
 		module, code := errors.Code(err)
 		results = append(results, &roothash.MessageEvent{
 			Index:  uint32(i),
 			Module: module,
 			Code:   code,
+			Result: result,
 		})
 	}
 	return results, nil

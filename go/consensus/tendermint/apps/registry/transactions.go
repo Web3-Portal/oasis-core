@@ -507,7 +507,7 @@ func (app *registryApplication) registerNode( // nolint: gocyclo
 			)
 
 			// Notify other interested applications about the resumed runtime.
-			if err = app.md.Publish(ctx, registryApi.MessageRuntimeResumed, rt); err != nil {
+			if _, err = app.md.Publish(ctx, registryApi.MessageRuntimeResumed, rt); err != nil {
 				ctx.Logger().Error("RegisterNode: failed to dispatch runtime resumption message",
 					"err", err,
 				)
@@ -743,7 +743,7 @@ func (app *registryApplication) registerRuntime( // nolint: gocyclo
 
 	// Notify other interested applications about the new runtime.
 	if existingRt == nil {
-		if err = app.md.Publish(ctx, registryApi.MessageNewRuntimeRegistered, rt); err != nil {
+		if _, err = app.md.Publish(ctx, registryApi.MessageNewRuntimeRegistered, rt); err != nil {
 			ctx.Logger().Error("RegisterRuntime: failed to dispatch message",
 				"err", err,
 			)
@@ -751,7 +751,7 @@ func (app *registryApplication) registerRuntime( // nolint: gocyclo
 		}
 	}
 
-	if err = app.md.Publish(ctx, registryApi.MessageRuntimeUpdated, rt); err != nil {
+	if _, err = app.md.Publish(ctx, registryApi.MessageRuntimeUpdated, rt); err != nil {
 		ctx.Logger().Error("RegisterRuntime: failed to dispatch message",
 			"err", err,
 		)

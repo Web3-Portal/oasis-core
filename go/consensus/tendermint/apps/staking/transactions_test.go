@@ -90,7 +90,7 @@ func TestReservedAddresses(t *testing.T) {
 	_ = staking.NewReservedAddress(testPK)
 
 	// Make sure all transaction types fail for the reserved address.
-	err = app.transfer(txCtx, stakeState, nil)
+	_, err = app.transfer(txCtx, stakeState, nil)
 	require.EqualError(err, "staking: forbidden by policy", "transfer for reserved address should error")
 
 	err = app.burn(txCtx, stakeState, nil)
@@ -100,11 +100,11 @@ func TestReservedAddresses(t *testing.T) {
 	_ = q.FromInt64(1_000)
 
 	// NOTE: We need to specify escrow amount since that is checked before the check for reserved address.
-	err = app.addEscrow(txCtx, stakeState, &staking.Escrow{Amount: *q.Clone()})
+	_, err = app.addEscrow(txCtx, stakeState, &staking.Escrow{Amount: *q.Clone()})
 	require.EqualError(err, "staking: forbidden by policy", "adding escrow for reserved address should error")
 
 	// NOTE: We need to specify reclaim escrow shares since that is checked before the check for reserved address.
-	err = app.reclaimEscrow(txCtx, stakeState, &staking.ReclaimEscrow{Shares: *q.Clone()})
+	_, err = app.reclaimEscrow(txCtx, stakeState, &staking.ReclaimEscrow{Shares: *q.Clone()})
 	require.EqualError(err, "staking: forbidden by policy", "reclaim escrow for reserved address should error")
 
 	err = app.amendCommissionSchedule(txCtx, stakeState, nil)
@@ -113,7 +113,7 @@ func TestReservedAddresses(t *testing.T) {
 	err = app.allow(txCtx, stakeState, &staking.Allow{})
 	require.EqualError(err, "staking: forbidden by policy", "allow for reserved address should error")
 
-	err = app.withdraw(txCtx, stakeState, &staking.Withdraw{})
+	_, err = app.withdraw(txCtx, stakeState, &staking.Withdraw{})
 	require.EqualError(err, "staking: forbidden by policy", "withdraw for reserved address should error")
 }
 
@@ -499,7 +499,7 @@ func TestWithdraw(t *testing.T) {
 			require.NoError(err, "reading account state should not error")
 		}
 
-		err = app.withdraw(txCtx, stakeState, tc.withdraw)
+		_, err = app.withdraw(txCtx, stakeState, tc.withdraw)
 		require.Equal(tc.err, err, tc.msg)
 
 		if tc.withdraw.From.IsReserved() {
@@ -622,7 +622,7 @@ func TestAddEscrow(t *testing.T) {
 		defer txCtx.Close()
 		txCtx.SetTxSigner(tc.txSigner)
 
-		err = app.addEscrow(txCtx, stakeState, tc.escrow)
+		_, err = app.addEscrow(txCtx, stakeState, tc.escrow)
 		require.Equal(tc.err, err, tc.msg)
 	}
 }
@@ -660,20 +660,20 @@ func TestAllowEscrowMessages(t *testing.T) {
 
 	// Add escrow transaction should be allowed.
 	txCtx.SetTxSigner(pk1)
-	err = app.addEscrow(txCtx, stakeState, &staking.Escrow{Account: addr1, Amount: *quantity.NewFromUint64(10)})
+	_, err = app.addEscrow(txCtx, stakeState, &staking.Escrow{Account: addr1, Amount: *quantity.NewFromUint64(10)})
 	require.NoError(err, "add escrow transaction should work")
 
 	// Reclaim escrow transaction should be allowed.
-	err = app.reclaimEscrow(txCtx, stakeState, &staking.ReclaimEscrow{Account: addr1, Shares: *quantity.NewFromUint64(1)})
+	_, err = app.reclaimEscrow(txCtx, stakeState, &staking.ReclaimEscrow{Account: addr1, Shares: *quantity.NewFromUint64(1)})
 	require.NoError(err, "reclaim escrow transaction should work")
 
 	txCtx = txCtx.WithMessageExecution()
 	// Add escrow message should not be allowed.
-	err = app.addEscrow(txCtx, stakeState, &staking.Escrow{Account: addr1, Amount: *quantity.NewFromUint64(10)})
+	_, err = app.addEscrow(txCtx, stakeState, &staking.Escrow{Account: addr1, Amount: *quantity.NewFromUint64(10)})
 	require.Equal(staking.ErrForbidden, err, "add escrow message should be denied")
 
 	// Reclaim escrow message should not be allowed.
-	err = app.reclaimEscrow(txCtx, stakeState, &staking.ReclaimEscrow{Account: addr1, Shares: *quantity.NewFromUint64(1)})
+	_, err = app.reclaimEscrow(txCtx, stakeState, &staking.ReclaimEscrow{Account: addr1, Shares: *quantity.NewFromUint64(1)})
 	require.Error(staking.ErrForbidden, err, "reclaim escrow transaction should work")
 
 	err = stakeState.SetConsensusParameters(ctx, &staking.ConsensusParameters{
@@ -682,9 +682,9 @@ func TestAllowEscrowMessages(t *testing.T) {
 	require.NoError(err, "setting staking consensus parameters should not error")
 
 	// Escrow message should be allowed.
-	err = app.addEscrow(txCtx, stakeState, &staking.Escrow{Account: addr1, Amount: *quantity.NewFromUint64(10)})
+	_, err = app.addEscrow(txCtx, stakeState, &staking.Escrow{Account: addr1, Amount: *quantity.NewFromUint64(10)})
 	require.NoError(err, "add escrow message should be allowed")
 
-	err = app.reclaimEscrow(txCtx, stakeState, &staking.ReclaimEscrow{Account: addr1, Shares: *quantity.NewFromUint64(1)})
+	_, err = app.reclaimEscrow(txCtx, stakeState, &staking.ReclaimEscrow{Account: addr1, Shares: *quantity.NewFromUint64(1)})
 	require.NoError(err, "reclaim escrow message should work")
 }

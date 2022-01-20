@@ -68,7 +68,7 @@ func (app *registryApplication) BeginBlock(ctx *api.Context, request types.Reque
 	return nil
 }
 
-func (app *registryApplication) ExecuteMessage(ctx *api.Context, kind, msg interface{}) error {
+func (app *registryApplication) ExecuteMessage(ctx *api.Context, kind, msg interface{}) (interface{}, error) {
 	state := registryState.NewMutableState(ctx.State())
 
 	switch kind {
@@ -76,12 +76,13 @@ func (app *registryApplication) ExecuteMessage(ctx *api.Context, kind, msg inter
 		m := msg.(*message.RegistryMessage)
 		switch {
 		case m.UpdateRuntime != nil:
-			return app.registerRuntime(ctx, state, m.UpdateRuntime)
+			// TODO: could return something.
+			return nil, app.registerRuntime(ctx, state, m.UpdateRuntime)
 		default:
-			return registry.ErrInvalidArgument
+			return nil, registry.ErrInvalidArgument
 		}
 	default:
-		return registry.ErrInvalidArgument
+		return nil, registry.ErrInvalidArgument
 	}
 }
 

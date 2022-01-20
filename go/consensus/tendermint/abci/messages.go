@@ -21,16 +21,20 @@ func (md *messageDispatcher) Subscribe(kind interface{}, ms api.MessageSubscribe
 }
 
 // Implements api.MessageDispatcher.
-func (md *messageDispatcher) Publish(ctx *api.Context, kind, msg interface{}) error {
-	if len(md.subscriptions[kind]) == 0 {
-		return api.ErrNoSubscribers
+func (md *messageDispatcher) Publish(ctx *api.Context, kind, msg interface{}) ([]interface{}, error) {
+	nSubs := len(md.subscriptions[kind])
+	if nSubs == 0 {
+		return nil, api.ErrNoSubscribers
 	}
 
+	results := make([]interface{}, nSubs)
 	var errs error
-	for _, ms := range md.subscriptions[kind] {
-		if err := ms.ExecuteMessage(ctx, kind, msg); err != nil {
+	for i, ms := range md.subscriptions[kind] {
+		if resp, err := ms.ExecuteMessage(ctx, kind, msg); err != nil {
 			errs = multierror.Append(errs, err)
+		} else {
+			results[i] = resp
 		}
 	}
-	return errs
+	return results, errs
 }
